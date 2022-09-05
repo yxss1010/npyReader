@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author yxss1010
- * @since <pre>2022/9/5</pre>
+ * @author ksyzz
+ * @since <pre>2019/03/12</pre>
  */
 public class NumpyReader {
     private static int MAGIC_LEN = 8;
