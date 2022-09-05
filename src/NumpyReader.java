@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author ksyzz
- * @since <pre>2019/03/11</pre>
+ * @author yxss1010
+ * @since <pre>2022/9/5</pre>
  */
 public class NumpyReader {
     private static int MAGIC_LEN = 8;
@@ -115,6 +115,13 @@ public class NumpyReader {
         }
         return Double.longBitsToDouble(value);
     }
+    public static double bytes2Float(byte[] arr) {
+        int value = 0;
+        for (int i = 0; i < 4; i++) {
+            value |= (arr[i] & 0xff) << (8 * i);
+        }
+        return Double.longBitsToDouble(value);
+    }
 
     public static int bytes2Int(byte[] src) {
         int value;
@@ -125,4 +132,46 @@ public class NumpyReader {
         return value;
     }
 
+    public static int[][] readIntArray(InputStream inputStream) throws Exception {
+        String version = readVersion(inputStream);
+        String header = readArrayHeader(inputStream, version);
+        int itemLength = itemLength(header);
+        String shape = arrayShape(header);
+        int row = Integer.valueOf(shape.split(",")[0]);
+        int col = Integer.valueOf(shape.split(",")[1]);
+        int[][] array = new int[row][col];
+        byte[] item = new byte[itemLength];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                inputStream.read(item);
+                array[i][j] = bytes2Int(item);
+            }
+        }
+        return array;
+    }
+
+    public static double[][] readDoubleArray(InputStream inputStream) throws Exception {
+        String version = readVersion(inputStream);
+        String header = readArrayHeader(inputStream, version);
+        int itemLength = itemLength(header);
+        String shape = arrayShape(header);
+        int row = Integer.valueOf(shape.split(",")[0]);
+        int col = Integer.valueOf(shape.split(",")[1]);
+        double[][] array = new double[row][col];
+        byte[] item = new byte[itemLength];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                inputStream.read(item);
+                switch (itemLength) {
+                    //itemLength为4时，fp32
+                    case 4:
+                        array[i][j] = bytes2Float(item);
+                    //itemLength为8时，fp64
+                    case 8:
+                        array[i][j] = bytes2Double(item);
+                }
+            }
+        }
+        return array;
+    }
 }
