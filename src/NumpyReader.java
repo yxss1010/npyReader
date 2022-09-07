@@ -120,7 +120,7 @@ public class NumpyReader {
         for (int i = 0; i < 4; i++) {
             value |= (arr[i] & 0xff) << (8 * i);
         }
-        return Double.longBitsToDouble(value);
+        return Float.intBitsToFloat(value);
     }
 
     public static int bytes2Int(byte[] src) {
@@ -150,27 +150,30 @@ public class NumpyReader {
         return array;
     }
 
-    public static double[][] readDoubleArray(InputStream inputStream) throws Exception {
+    public static double[][] readFloatArray(InputStream inputStream) throws Exception {
         String version = readVersion(inputStream);
         String header = readArrayHeader(inputStream, version);
         int itemLength = itemLength(header);
         String shape = arrayShape(header);
-        int row = Integer.valueOf(shape.split(",")[0]);
-        int col = Integer.valueOf(shape.split(",")[1]);
+        int row = Integer.valueOf(shape.split(",")[1]);
+        int col = Integer.valueOf(shape.split(",")[2]);
         double[][] array = new double[row][col];
         byte[] item = new byte[itemLength];
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                inputStream.read(item);
-                switch (itemLength) {
-                    //itemLength为4时，fp32
-                    case 4:
+        switch (itemLength) {
+            //itemLength为4时，fp32
+            case 4: for (int i = 0; i < row; i++) {
+                        for (int j = 0; j < col; j++) {
+                        inputStream.read(item);
                         array[i][j] = bytes2Float(item);
-                    //itemLength为8时，fp64
-                    case 8:
+                    }
+                }break;
+            //itemLength为8时，fp64
+            case 8: for (int i = 0; i < row; i++) {
+                        for (int j = 0; j < col; j++) {
+                        inputStream.read(item);
                         array[i][j] = bytes2Double(item);
-                }
-            }
+                    }
+                }break;
         }
         return array;
     }
