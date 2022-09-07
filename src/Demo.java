@@ -8,15 +8,14 @@ import java.io.InputStream;
  */
 public class Demo {
     public static void main(String[] args) throws Exception {
-        String path = "./x.npy";
+        String path = "./npyReader/x.npy";
         DataInputStream dataInputStream = new DataInputStream(new FileInputStream(path));
         int[][] arr = NumpyReader.readIntArray(dataInputStream);
-        for(int i[] : arr){
-            for(int j : i){
+        for(int i[]:arr){
+            for(int j:i){
                 System.out.print(j + " ");
             }
             System.out.println();
         }
-        System.out.println();
     }
 }
